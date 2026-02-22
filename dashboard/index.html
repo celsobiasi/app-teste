@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gestor Esportivo</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <!-- ===== Page Content ===== -->
+    <div class="app-container">
+        <div class="auth-card" style="max-width: 600px; padding: 40px; text-align: center;">
+            <h1 style="color: var(--primary-blue); margin-bottom: 20px;">Dashboard</h1>
+            <p style="color: var(--text-muted);">Bem-vindo ao sistema de gerenciamento esportivo.</p>
+            <div style="margin-top: 30px;">
+                <a href="../empresas/cadastro" class="btn-primary"
+                    style="text-decoration: none; display: inline-flex; width: auto;">
+                    <i class="fa-solid fa-plus" style="margin-right:8px;"></i> Novo Cadastro de Empresa
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared Header Component -->
+    <script src="../js/header.js" data-root-path="../"></script>
+</body>
+
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Gestor Esportivo</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .profile-card {
+            background: var(--bg-card);
+            border-radius: 1.25rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 520px;
+            overflow: hidden;
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .profile-banner {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
+            height: 100px;
+            position: relative;
+        }
+
+        .profile-avatar-wrap {
+            position: absolute;
+            bottom: -36px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .profile-avatar-lg {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: hsl(0 0% 100% / .2);
+            border: 4px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #fff;
+            box-shadow: var(--shadow-md);
+        }
+
+        .profile-body {
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+        }
+
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-role {
+            display: inline-block;
+            background: hsl(214 76% 19% / .1);
+            color: var(--primary-light);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.2rem 0.75rem;
+            border-radius: 2rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 1.75rem;
+        }
+
+        .profile-info-list {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 0.875rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            background: var(--bg-app);
+            border-radius: 0.625rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .profile-info-item i {
+            width: 18px;
+            color: var(--primary-light);
+            font-size: 0.95rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .profile-info-item .info-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: block;
+        }
+
+        .profile-info-item .info-value {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .profile-footer {
+            border-top: 1px solid var(--border-color);
+            padding: 1.25rem 2rem;
+            background: #fafbfc;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===== Page Content ===== -->
+    <div class="app-container" style="align-items: center; padding-top: 3rem;">
+        <div class="profile-card">
+            <div class="profile-banner">
+                <div class="profile-avatar-wrap">
+                    <div class="profile-avatar-lg" id="profile-avatar-lg">?</div>
+                </div>
+            </div>
+
+            <div class="profile-body">
+                <div class="profile-name" id="profile-name">Carregando...</div>
+                <span class="profile-role" id="profile-role">—</span>
+
+                <div class="profile-info-list">
+                    <div class="profile-info-item">
+                        <i class="fa-solid fa-envelope"></i>
+                        <div>
+                            <span class="info-label">E-mail</span>
+                            <span class="info-value" id="profile-email">—</span>
+                        </div>
+                    </div>
+                    <div class="profile-info-item">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <div>
+                            <span class="info-label">Tipo de Conta</span>
+                            <span class="info-value" id="profile-type">—</span>
+                        </div>
+                    </div>
+                    <div class="profile-info-item">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <div>
+                            <span class="info-label">Membro desde</span>
+                            <span class="info-value" id="profile-since">—</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-footer">
+                <a href="../dashboard" class="btn-secondary"
+                    style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px; width: auto; padding: 10px 24px;">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar ao Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared Header Component -->
+    <script src="../js/header.js" data-root-path="../"></script>
+
+    <!-- Profile-specific logic: populate card after header loads user data -->
+    <script>
+        document.addEventListener('header-ready', async (e) => {
+            const { user, name, initial, client } = e.detail;
+
+            const { data: profile } = await client
+                .from('usuarios')
+                .select('nome, tipo_user, created_at')
+                .eq('id', user.id)
+                .single();
+
+            const displayName = profile?.nome || user.email;
+            const tipo = profile?.tipo_user || '—';
+            const firstLetter = displayName.charAt(0).toUpperCase();
+
+            document.getElementById('profile-avatar-lg').textContent = firstLetter;
+            document.getElementById('profile-name').textContent = displayName;
+            document.getElementById('profile-role').textContent = tipo;
+            document.getElementById('profile-email').textContent = user.email;
+            document.getElementById('profile-type').textContent = tipo;
+
+            if (profile?.created_at) {
+                const date = new Date(profile.created_at);
+                document.getElementById('profile-since').textContent = date.toLocaleDateString('pt-BR', {
+                    day: '2-digit', month: 'long', year: 'numeric'
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

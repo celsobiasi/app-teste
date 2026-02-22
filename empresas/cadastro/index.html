@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro Empresa</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+
+    <!-- Supabase SDKs (Primary + Fallback) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        if (!window.supabase) {
+            console.warn('Primary Supabase CDN failed, trying fallback...');
+            document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');
+        }
+    </script>
+
+    <style>
+        /* VERSÃO 7.0 - CSS DE EMERGÊNCIA */
+        .cnpj-input-group {
+            display: flex !important;
+            gap: 15px !important;
+            width: 100% !important;
+        }
+
+        #cnpj {
+            flex: 1 !important;
+            font-size: 16px !important;
+        }
+
+        .btn-lookup-final {
+            background-color: #2563eb !important;
+            color: #fff !important;
+            padding: 0 25px !important;
+            border-radius: 8px !important;
+            border: none !important;
+            cursor: pointer !important;
+            font-weight: bold !important;
+            min-height: 48px !important;
+            z-index: 9999 !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .version-banner {
+            background: #ef4444;
+            color: white;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-weight: bold;
+            padding: 8px;
+            z-index: 10001;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <div class="registration-container fade-in">
+            <header class="registration-header">
+                <h1>Cadastro de Empresa</h1>
+                <p>Preencha o CNPJ para carregar os dados automaticamente</p>
+            </header>
+
+            <form id="empresa-form" class="registration-form">
+                <div class="form-grid">
+                    <!-- CNPJ Row -->
+                    <div class="form-group col-span-2">
+                        <label for="cnpj">CNPJ</label>
+                        <div class="cnpj-input-group">
+                            <div class="input-wrapper" style="flex: 1;">
+                                <i class="fa-solid fa-address-card input-icon"></i>
+                                <input type="text" id="cnpj" placeholder="00.000.000/0000-00" maxlength="18" required>
+                            </div>
+                            <button type="button" class="btn-lookup-final" onclick="window.executarBusca()">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <span>BUSCAR DADOS</span>
+                            </button>
+                        </div>
+                        <span id="cnpj-error" class="field-error hidden">CNPJ não encontrado ou erro de conexão.</span>
+                    </div>
+
+                    <!-- Dados da Empresa -->
+                    <div class="form-group">
+                        <label for="razao_social">Razão Social</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-building input-icon"></i>
+                            <input type="text" id="razao_social" placeholder="Razão Social" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="nome_fantasia">Nome Fantasia</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-store input-icon"></i>
+                            <input type="text" id="nome_fantasia" placeholder="Nome Fantasia">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="responsavel">Nome do Responsável</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-user-tie input-icon"></i>
+                            <input type="text" id="responsavel" placeholder="Responsável">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefone">Telefone</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-phone input-icon"></i>
+                            <input type="text" id="telefone" placeholder="(00) 0000-0000">
+                        </div>
+                    </div>
+                    <div class="form-group col-span-mobile">
+                        <label for="email">E-mail</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-envelope input-icon"></i>
+                            <input type="email" id="email" placeholder="empresa@email.com">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cep">CEP</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-map-location-dot input-icon"></i>
+                            <input type="text" id="cep" placeholder="00000-000" maxlength="9">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="cidade">Cidade</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-city input-icon"></i>
+                            <input type="text" id="cidade" placeholder="Cidade">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">UF</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-map input-icon"></i>
+                            <input type="text" id="estado" maxlength="2" placeholder="UF">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="logradouro">Logradouro / Endereço</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-location-dot input-icon"></i>
+                            <input type="text" id="logradouro" placeholder="Rua, Av...">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="numero">Número</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-house-chimney input-icon"></i>
+                            <input type="text" id="numero" placeholder="123">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-footer" style="margin-top: 30px;">
+                    <button type="button" onclick="window.location.href='../../dashboard'"
+                        class="btn-secondary">Cancelar</button>
+                    <button type="submit" id="btn-submit" class="btn-primary">Finalizar Cadastro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden">
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- Shared Header Component -->
+    <script src="../../js/header.js" data-root-path="../../"></script>
+
+    <script>
+        console.log('Script v7.1 Production - Inicializando');
+
+        // Configuração Supabase
+        const SUPABASE_URL = 'https://pramywnhahowzsnqlshx.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_NGPuXFyj0qAmlfAX-UlBpA_IchCQYIv';
+        let supabaseClient;
+
+        function getSupabase() {
+            if (supabaseClient) return supabaseClient;
+
+            if (window.supabase) {
+                try {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('Supabase: Cliente criado com sucesso.');
+                    return supabaseClient;
+                } catch (e) {
+                    console.error('Supabase: Erro ao criar cliente:', e);
+                }
+            }
+
+            // Log global state for debugging
+            console.log('Supabase Status:', {
+                windowSupabase: !!window.supabase,
+                url: !!SUPABASE_URL,
+                key: !!SUPABASE_ANON_KEY
+            });
+            return null;
+        }
+
+        // Tentar inicializar imediatamente
+        getSupabase();
+
+        // Lookup function (Multi-API)
+        window.executarBusca = async function () {
+            const rawCnpj = document.getElementById('cnpj').value.replace(/\D/g, '');
+
+            if (rawCnpj.length < 14) {
+                showToast('O CNPJ deve ter 14 números.', 'error');
+                return;
+            }
+
+            const btn = document.querySelector('.btn-lookup-final');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> BUSCANDO...';
+
+            try {
+                // Try BrasilAPI first
+                const url = `https://brasilapi.com.br/api/cnpj/v1/${rawCnpj}`;
+                const resp = await fetch(url);
+                const data = await resp.json();
+
+                if (resp.ok) {
+                    populateFields(data);
+                    showToast('Dados carregados com sucesso!', 'success');
+                } else {
+                    // Fallback to CNPJA
+                    const resp2 = await fetch(`https://open.cnpja.com/office/${rawCnpj}`);
+                    if (resp2.ok) {
+                        const data2 = await resp2.json();
+                        populateFieldsCNPJA(data2);
+                        showToast('Dados carregados!', 'success');
+                    } else {
+                        showToast('CNPJ não encontrado.', 'error');
+                    }
+                }
+            } catch (fail) {
+                console.error('Lookup Error:', fail);
+                showToast('Erro de conexão ao buscar dados.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> BUSCAR DADOS';
+            }
+        };
+
+        function populateFields(data) {
+            document.getElementById('razao_social').value = data.razao_social || '';
+            document.getElementById('nome_fantasia').value = data.nome_fantasia || data.razao_social || '';
+            document.getElementById('telefone').value = data.ddd_telefone_1 ? `(${data.ddd_telefone_1.slice(0, 2)}) ${data.ddd_telefone_1.slice(2)}` : '';
+            document.getElementById('email').value = data.email || '';
+            document.getElementById('cep').value = data.cep || '';
+            document.getElementById('cidade').value = data.municipio || '';
+            document.getElementById('estado').value = data.uf || '';
+            document.getElementById('logradouro').value = data.logradouro || '';
+            document.getElementById('numero').value = data.numero || '';
+
+            // Trigger masks
+            document.getElementById('cep').dispatchEvent(new Event('input'));
+            document.getElementById('telefone').dispatchEvent(new Event('input'));
+
+            highlightFields();
+        }
+
+        function populateFieldsCNPJA(data) {
+            document.getElementById('razao_social').value = data.company?.name || '';
+            document.getElementById('nome_fantasia').value = data.alias || data.company?.name || '';
+            document.getElementById('telefone').value = data.phones?.[0] ? `(${data.phones[0].area}) ${data.phones[0].number}` : '';
+            document.getElementById('email').value = data.emails?.[0]?.address || '';
+            document.getElementById('cep').value = data.address?.zip || '';
+            document.getElementById('cidade').value = data.address?.city || '';
+            document.getElementById('estado').value = data.address?.state || '';
+            document.getElementById('logradouro').value = data.address?.street || '';
+            document.getElementById('numero').value = data.address?.number || '';
+
+            // Trigger masks
+            document.getElementById('cep').dispatchEvent(new Event('input'));
+            document.getElementById('telefone').dispatchEvent(new Event('input'));
+
+            highlightFields();
+        }
+
+        function highlightFields() {
+            const fields = ['razao_social', 'nome_fantasia', 'telefone', 'email', 'cep', 'cidade', 'estado', 'logradouro'];
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.value) {
+                    el.classList.add('field-highlight');
+                    setTimeout(() => el.classList.remove('field-highlight'), 1000);
+                }
+            });
+        }
+
+        // Máscara CNPJ
+        document.getElementById('cnpj').addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 14) v = v.slice(0, 14);
+
+            let m = v;
+            if (v.length > 2) m = v.slice(0, 2) + '.' + v.slice(2);
+            if (v.length > 5) m = m.slice(0, 6) + '.' + m.slice(6);
+            if (v.length > 8) m = m.slice(0, 10) + '/' + m.slice(10);
+            if (v.length > 12) m = m.slice(0, 15) + '-' + m.slice(15);
+            e.target.value = m;
+        });
+
+        // Máscara CEP
+        document.getElementById('cep').addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 8) v = v.slice(0, 8);
+
+            let m = v;
+            if (v.length > 5) m = v.slice(0, 5) + '-' + v.slice(5);
+            e.target.value = m;
+        });
+
+        // Submit Final
+        document.getElementById('empresa-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const client = getSupabase();
+            if (!client) {
+                showToast('Erro: Sistema de banco de dados não carregado. Recarregue a página.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = true;
+            btn.textContent = 'Gravando...';
+
+            try {
+                const cnpjLimpo = document.getElementById('cnpj').value.replace(/\D/g, '');
+
+                // 1. Verificar se já existe (Busca Proativa)
+                const { data: existing, error: checkError } = await client
+                    .from('empresas')
+                    .select('id')
+                    .eq('cnpj', cnpjLimpo)
+                    .maybeSingle();
+
+                if (existing) {
+                    showToast('Empresa já cadastrada.', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Finalizar Cadastro';
+                    return;
+                }
+
+                const payload = {
+                    cnpj: cnpjLimpo,
+                    razao_social: document.getElementById('razao_social').value,
+                    nome_fantasia: document.getElementById('nome_fantasia').value,
+                    responsavel: document.getElementById('responsavel').value,
+                    telefone: document.getElementById('telefone').value,
+                    email: document.getElementById('email').value,
+                    cep: document.getElementById('cep').value,
+                    cidade: document.getElementById('cidade').value,
+                    estado: document.getElementById('estado').value,
+                    logradouro: document.getElementById('logradouro').value,
+                    numero: document.getElementById('numero').value
+                };
+
+                // 2. Inserir
+                const { error: insertError } = await client.from('empresas').insert([payload]);
+
+                if (insertError) {
+                    if (insertError.code === '23505') {
+                        showToast('Empresa já cadastrada.', 'error');
+                    } else {
+                        showToast('Erro no Banco: ' + (insertError.message || 'Falha ao salvar'), 'error');
+                    }
+                    throw insertError;
+                }
+
+                showToast('Empresa cadastrada com sucesso!', 'success');
+                setTimeout(() => window.location.href = '../../dashboard', 1500);
+            } catch (err) {
+                console.error('Save Error:', err);
+                // Only show fallback if we haven't shown a specific toast yet
+                const toastMsg = document.getElementById('toast-message').textContent;
+                if (!toastMsg || toastMsg === 'Gravando...') {
+                    showToast('Falha ao conectar com o servidor. Tente novamente.', 'error');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Finalizar Cadastro';
+            }
+        });
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toast-message');
+            msg.textContent = message;
+            toast.className = `toast show ${type}`;
+            setTimeout(() => toast.className = 'toast hidden', 3000);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor Esportivo</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Main Card -->
+        <div class="auth-card fade-in">
+
+            <!-- Header / Logo Area -->
+            <div class="auth-header">
+                <div class="logo-circle">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h1>Gestor Esportivo</h1>
+                <p>Entre ou cadastre-se!</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="login">Entrar</button>
+                <button class="tab-btn" data-tab="register">Cadastrar</button>
+                <div class="tab-indicator"></div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="auth-content">
+
+                <!-- LOGIN FORM -->
+                <div id="login-tab" class="tab-pane active">
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-email">Email</label>
+                            <div class="input-wrapper">
+                                <i class="fa-regular fa-envelope input-icon"></i>
+                                <input type="email" id="login-email" placeholder="seu@email.com" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="login-password">Senha</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="login-password" placeholder="••••••••" required>
+                                <button type="button" class="toggle-password" tabindex="-1">
+                                    <i class="fa-regular fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <a href="#" id="forgot-password" class="forgot-link">Esqueci minha senha</a>
+                        </div>
+
+                        <div id="login-error" class="error-message user-msg hidden"></div>
+                        <div id="login-success" class="success-message user-msg hidden"></div>
+
+                        <button type="submit" class="btn-primary">
+                            <span class="btn-text">Entrar</span>
+                            <i class="fa-solid fa-spinner fa-spin btn-loader hidden"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- REGISTER FORM -->
+                <div id="register-tab" class="tab-pane">
+                    <form id="register-form">
+                        <div class="form-group">
+                            <label for="reg-name">Nome Completo</label>
+                            <div class="input-wrapper">
+                                <i class="fa-regular fa-user input-icon"></i>
+                                <input type="text" id="reg-name" placeholder="Seu nome completo" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-email">Email</label>
+                            <div class="input-wrapper">
+                                <i class="fa-regular fa-envelope input-icon"></i>
+                                <input type="email" id="reg-email" placeholder="seu@email.com" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-password">Senha</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="reg-password" placeholder="Mínimo 6 caracteres" minlength="6"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reg-confirm-password">Confirmar Senha</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="reg-confirm-password" placeholder="Repita a senha"
+                                    minlength="6" required>
+                            </div>
+                        </div>
+
+                        <div id="register-error" class="error-message user-msg hidden"></div>
+                        <div id="register-success" class="success-message user-msg hidden"></div>
+
+                        <button type="submit" class="btn-primary">
+                            <span class="btn-text">Criar Conta</span>
+                            <i class="fa-solid fa-spinner fa-spin btn-loader hidden"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <footer class="auth-footer">
+                <p>&copy; 2026 Sistema Gestor Esportivo</p>
+            </footer>
+        </div>
+    </div>
+
+    <script src="js/main.js?v=2"></script>
+</body>
+
+</html>

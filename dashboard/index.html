@@ -20,21 +20,42 @@
 <body>
 
     <!-- ===== Page Content ===== -->
-    <div class="app-container">
-        <div class="auth-card" style="max-width: 600px; padding: 40px; text-align: center;">
-            <h1 style="color: var(--primary-blue); margin-bottom: 20px;">Dashboard</h1>
-            <p style="color: var(--text-muted);">Bem-vindo ao sistema de gerenciamento esportivo.</p>
-            <div style="margin-top: 30px;">
-                <a href="../empresas/cadastro" class="btn-primary"
-                    style="text-decoration: none; display: inline-flex; width: auto;">
-                    <i class="fa-solid fa-plus" style="margin-right:8px;"></i> Novo Cadastro de Empresa
-                </a>
+    <div class="app-container" style="display: flex; flex-direction: column; align-items: center; padding: 40px 20px;">
+        <div style="max-width: 1200px; width: 100%;">
+            <h1 style="color: var(--primary-blue); margin-bottom: 10px;">Dashboard</h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Bem-vindo ao sistema de gerenciamento esportivo.
+            </p>
+
+            <div class="dashboard-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                <!-- Card: Empresas Cadastradas -->
+                <div class="auth-card" style="padding: 25px; display: flex; flex-direction: column; height: 100%;">
+                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                        <div
+                            style="width: 40px; height: 40px; border-radius: 8px; background: rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; margin-right: 15px; color: var(--primary-blue);">
+                            <i class="fa-solid fa-building" style="font-size: 1.2rem;"></i>
+                        </div>
+                        <h3 style="margin: 0; color: var(--text-color); font-size: 1.1rem; font-weight: 600;">Empresas
+                        </h3>
+                    </div>
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--primary-blue); margin-bottom: 15px;">
+                        <span id="company-count">...</span>
+                    </div>
+                    <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border-color);">
+                        <a href="../empresas/index.html"
+                            style="color: var(--primary-blue); text-decoration: none; font-weight: 500; font-size: 0.95rem; display: flex; align-items: center; justify-content: space-between;">
+                            Ver todas as empresas <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <!-- Mais cards podem ser adicionados aqui no futuro -->
             </div>
         </div>
     </div>
 
     <!-- Shared Header Component -->
     <script src="../js/header.js" data-root-path="../"></script>
+    <script src="../dashboard/dashboard.js"></script>
 </body>
 
 </html>

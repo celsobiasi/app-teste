@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Empresa - Gestor Esportivo</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        if (!window.supabase) {
+            document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');
+        }
+    </script>
+
+    <style>
+        .edit-container {
+            max-width: 860px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .page-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            margin-bottom: 24px;
+            transition: color 0.2s;
+        }
+
+        .page-back-link:hover {
+            color: var(--primary-blue);
+        }
+
+        .edit-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .edit-card-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
+            padding: 28px 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .edit-card-header-icon {
+            width: 52px;
+            height: 52px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .edit-card-header h1 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+        }
+
+        .edit-card-header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .edit-card-body {
+            padding: 32px;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin: 0 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-section {
+            margin-bottom: 28px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group.col-span-2 {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* CNPJ read-only display */
+        .cnpj-readonly {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .cnpj-readonly i {
+            color: var(--primary-light);
+        }
+
+        .cnpj-readonly .cnpj-badge {
+            font-family: monospace;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            letter-spacing: 0.05em;
+        }
+
+        .cnpj-readonly .cnpj-lock {
+            margin-left: auto;
+            font-size: 0.75rem;
+            background: #e2e8f0;
+            color: var(--text-muted);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        /* Form Footer */
+        .form-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 8px;
+        }
+
+        /* Loading skeleton for form */
+        .skeleton-loader {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.2s infinite;
+            border-radius: 8px;
+            height: 48px;
+        }
+
+        @keyframes skeleton-loading {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .page-loading-overlay {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            gap: 16px;
+            color: var(--text-muted);
+        }
+
+        .page-loading-overlay i {
+            font-size: 2rem;
+            color: var(--primary-blue);
+        }
+
+        .error-banner {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 16px 20px;
+            color: #dc2626;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.col-span-2 {
+                grid-column: 1;
+            }
+
+            .edit-card-body {
+                padding: 20px;
+            }
+
+            .form-footer {
+                flex-direction: column-reverse;
+            }
+
+            .form-footer .btn-secondary,
+            .form-footer .btn-primary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <div class="edit-container">
+
+            <a href="../" class="page-back-link">
+                <i class="fa-solid fa-arrow-left"></i>
+                Voltar para lista de empresas
+            </a>
+
+            <div class="edit-card">
+                <div class="edit-card-header">
+                    <div class="edit-card-header-icon">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div>
+                        <h1>Editar Empresa</h1>
+                        <p>Atualize os dados cadastrais da empresa</p>
+                    </div>
+                </div>
+
+                <div class="edit-card-body">
+                    <!-- Loading State -->
+                    <div id="form-loading" class="page-loading-overlay">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        <span>Carregando dados da empresa...</span>
+                    </div>
+
+                    <!-- Error State -->
+                    <div id="form-error" class="error-banner hidden">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="form-error-msg">Erro ao carregar dados da empresa.</span>
+                    </div>
+
+                    <!-- The Form (hidden until data is loaded) -->
+                    <form id="empresa-form" class="hidden">
+
+                        <!-- Identification -->
+                        <div class="form-section">
+                            <p class="section-title"><i class="fa-solid fa-id-card"
+                                    style="margin-right:6px;"></i>Identificação</p>
+                            <div class="form-grid">
+                                <div class="form-group col-span-2">
+                                    <label>CNPJ</label>
+                                    <div class="cnpj-readonly">
+                                        <i class="fa-solid fa-address-card"></i>
+                                        <span class="cnpj-badge" id="cnpj-display">–</span>
+                                        <span class="cnpj-lock"><i class="fa-solid fa-lock"
+                                                style="margin-right:4px; font-size:0.65rem;"></i>Não editável</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="razao_social">Razão Social <span style="color:#ef4444;">*</span></label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-building input-icon"></i>
+                                        <input type="text" id="razao_social" placeholder="Razão Social" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="nome_fantasia">Nome Fantasia</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-store input-icon"></i>
+                                        <input type="text" id="nome_fantasia" placeholder="Nome Fantasia">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact -->
+                        <div class="form-section">
+                            <p class="section-title"><i class="fa-solid fa-phone" style="margin-right:6px;"></i>Contato
+                            </p>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="responsavel">Nome do Responsável</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-user-tie input-icon"></i>
+                                        <input type="text" id="responsavel" placeholder="Responsável">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="telefone">Telefone</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-phone input-icon"></i>
+                                        <input type="text" id="telefone" placeholder="(00) 00000-0000" maxlength="15">
+                                    </div>
+                                </div>
+                                <div class="form-group col-span-2">
+                                    <label for="email">E-mail</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-envelope input-icon"></i>
+                                        <input type="email" id="email" placeholder="empresa@email.com">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="form-section">
+                            <p class="section-title"><i class="fa-solid fa-circle-check"
+                                    style="margin-right:6px;"></i>Status</p>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Status da Empresa</label>
+                                    <div class="toggle-container"
+                                        style="padding: 12px 14px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px;">
+                                        <span class="status-label" id="status-label">Inativa</span>
+                                        <label class="switch">
+                                            <input type="checkbox" id="ativo">
+                                            <span class="slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address -->
+                        <div class="form-section">
+                            <p class="section-title"><i class="fa-solid fa-location-dot"
+                                    style="margin-right:6px;"></i>Endereço</p>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="cep">CEP</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-map-location-dot input-icon"></i>
+                                        <input type="text" id="cep" placeholder="00000-000" maxlength="9">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="estado">UF</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-map input-icon"></i>
+                                        <input type="text" id="estado" maxlength="2" placeholder="UF">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cidade">Cidade</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-city input-icon"></i>
+                                        <input type="text" id="cidade" placeholder="Cidade">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="numero">Número</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-house-chimney input-icon"></i>
+                                        <input type="text" id="numero" placeholder="123">
+                                    </div>
+                                </div>
+                                <div class="form-group col-span-2">
+                                    <label for="logradouro">Logradouro / Endereço</label>
+                                    <div class="input-wrapper">
+                                        <i class="fa-solid fa-location-dot input-icon"></i>
+                                        <input type="text" id="logradouro" placeholder="Rua, Av...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer buttons -->
+                        <div class="form-footer">
+                            <button type="button" id="btn-cancel" class="btn-secondary">
+                                <i class="fa-solid fa-xmark" style="margin-right:8px;"></i>Cancelar
+                            </button>
+                            <button type="submit" id="btn-save" class="btn-primary">
+                                <span class="btn-text">
+                                    <i class="fa-solid fa-floppy-disk" style="margin-right:8px;"></i>Salvar Alterações
+                                </span>
+                                <i class="fa-solid fa-spinner fa-spin btn-loader hidden"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden">
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- Shared Header Component -->
+    <script src="../../js/header.js" data-root-path="../../"></script>
+
+    <script>
+        // --- Supabase Setup ---
+        const SUPABASE_URL = 'https://pramywnhahowzsnqlshx.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_NGPuXFyj0qAmlfAX-UlBpA_IchCQYIv';
+        let supabaseClient = null;
+
+        function getSupabase() {
+            if (supabaseClient) return supabaseClient;
+            if (window.supabase) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            }
+            return supabaseClient;
+        }
+
+        // --- Helpers ---
+        function formatCnpj(cnpj) {
+            if (!cnpj) return '';
+            const raw = cnpj.replace(/\D/g, '');
+            let m = raw;
+            if (raw.length > 2) m = raw.slice(0, 2) + '.' + raw.slice(2);
+            if (raw.length > 5) m = m.slice(0, 6) + '.' + m.slice(6);
+            if (raw.length > 8) m = m.slice(0, 10) + '/' + m.slice(10);
+            if (raw.length > 12) m = m.slice(0, 15) + '-' + m.slice(15);
+            return m.substring(0, 18);
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const msg = document.getElementById('toast-message');
+            msg.textContent = message;
+            toast.className = `toast show ${type}`;
+            setTimeout(() => toast.className = 'toast hidden', 3500);
+        }
+
+        function showError(message) {
+            document.getElementById('form-loading').classList.add('hidden');
+            const err = document.getElementById('form-error');
+            document.getElementById('form-error-msg').textContent = message;
+            err.classList.remove('hidden');
+        }
+
+        // --- Masks ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('cep').addEventListener('input', e => {
+                let v = e.target.value.replace(/\D/g, '').slice(0, 8);
+                if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+                e.target.value = v;
+            });
+
+            document.getElementById('telefone').addEventListener('input', e => {
+                let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+                if (v.length > 10) {
+                    v = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+                } else if (v.length > 6) {
+                    v = `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
+                } else if (v.length > 2) {
+                    v = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+                }
+                e.target.value = v;
+            });
+
+            document.getElementById('ativo').addEventListener('change', e => {
+                document.getElementById('status-label').textContent = e.target.checked ? 'Ativa' : 'Inativa';
+            });
+        });
+
+        // --- Load company data ---
+        async function loadCompany(id) {
+            const client = getSupabase();
+            if (!client) {
+                showError('Sistema de banco de dados não carregado. Recarregue a página.');
+                return;
+            }
+
+            try {
+                const { data, error } = await client
+                    .from('empresas')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+                if (!data) throw new Error('Empresa não encontrada.');
+
+                // Fill the form
+                document.getElementById('cnpj-display').textContent = formatCnpj(data.cnpj) || data.cnpj || '–';
+                document.getElementById('razao_social').value = data.razao_social || '';
+                document.getElementById('nome_fantasia').value = data.nome_fantasia || '';
+                document.getElementById('responsavel').value = data.responsavel || '';
+                document.getElementById('telefone').value = data.telefone || '';
+                document.getElementById('email').value = data.email || '';
+                document.getElementById('cep').value = data.cep || '';
+                document.getElementById('cidade').value = data.cidade || '';
+                document.getElementById('estado').value = data.estado || '';
+                document.getElementById('logradouro').value = data.logradouro || '';
+                document.getElementById('numero').value = data.numero || '';
+
+                // Set status toggle
+                const ativoToggle = document.getElementById('ativo');
+                ativoToggle.checked = !!data.ativo;
+                document.getElementById('status-label').textContent = data.ativo ? 'Ativa' : 'Inativa';
+
+                // Show form, hide loader
+                document.getElementById('form-loading').classList.add('hidden');
+                document.getElementById('empresa-form').classList.remove('hidden');
+
+            } catch (err) {
+                console.error('Load error:', err);
+                showError('Não foi possível carregar os dados da empresa. Verifique se o registro existe e tente novamente.');
+            }
+        }
+
+        // --- Save changes ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get the company ID from the URL
+            const params = new URLSearchParams(window.location.search);
+            const companyId = params.get('id');
+
+            if (!companyId) {
+                showError('ID da empresa não informado na URL. Volte para a lista e tente novamente.');
+                return;
+            }
+
+            // Cancel button → go back to list
+            document.getElementById('btn-cancel').addEventListener('click', () => {
+                window.location.href = '../';
+            });
+
+            // Form submit → save to Supabase
+            document.getElementById('empresa-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const client = getSupabase();
+                if (!client) {
+                    showToast('Erro: banco de dados não carregado. Recarregue a página.', 'error');
+                    return;
+                }
+
+                const btnSave = document.getElementById('btn-save');
+                btnSave.disabled = true;
+                btnSave.querySelector('.btn-text').innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Salvando...';
+                btnSave.querySelector('.btn-loader').classList.remove('hidden');
+
+                try {
+                    const payload = {
+                        razao_social: document.getElementById('razao_social').value.trim(),
+                        nome_fantasia: document.getElementById('nome_fantasia').value.trim(),
+                        responsavel: document.getElementById('responsavel').value.trim(),
+                        telefone: document.getElementById('telefone').value.trim(),
+                        email: document.getElementById('email').value.trim(),
+                        cep: document.getElementById('cep').value.trim(),
+                        cidade: document.getElementById('cidade').value.trim(),
+                        estado: document.getElementById('estado').value.trim(),
+                        logradouro: document.getElementById('logradouro').value.trim(),
+                        numero: document.getElementById('numero').value.trim(),
+                        ativo: document.getElementById('ativo').checked,
+                        updated_at: new Date().toISOString()
+                    };
+
+                    const { error } = await client
+                        .from('empresas')
+                        .update(payload)
+                        .eq('id', companyId);
+
+                    if (error) throw error;
+
+                    showToast('Alterações salvas com sucesso!', 'success');
+                    setTimeout(() => window.location.href = '../', 1800);
+
+                } catch (err) {
+                    console.error('Save error:', err);
+                    showToast('Erro ao salvar alterações. Tente novamente.', 'error');
+                    btnSave.disabled = false;
+                    btnSave.querySelector('.btn-text').innerHTML = '<i class="fa-solid fa-floppy-disk" style="margin-right:8px;"></i>Salvar Alterações';
+                    btnSave.querySelector('.btn-loader').classList.add('hidden');
+                }
+            });
+
+            // Wait for Supabase (may load via header.js event or direct CDN)
+            if (window.supabase) {
+                loadCompany(companyId);
+            } else {
+                // Fallback: wait for header-ready event (which provides supabase client)
+                document.addEventListener('header-ready', (e) => {
+                    supabaseClient = e.detail.client;
+                    loadCompany(companyId);
+                });
+                // Also try after a short delay
+                setTimeout(() => {
+                    if (!supabaseClient && window.supabase) {
+                        loadCompany(companyId);
+                    }
+                }, 800);
+            }
+        });
+    </script>
+</body>
+
+</html>

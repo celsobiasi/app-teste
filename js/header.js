@@ -25,16 +25,21 @@
             Gestor Esportivo
         </a>
 
-        <div class="user-menu" id="user-menu">
-            <div class="user-menu-trigger" id="user-menu-trigger">
-                <div class="user-avatar" id="user-avatar">?</div>
-                <span id="user-display-name">Carregando...</span>
-                <i class="fa-solid fa-chevron-down chevron"></i>
-            </div>
-            <div class="user-dropdown">
-                <a href="${ROOT}perfil/"><i class="fa-solid fa-user"></i> Meu Perfil</a>
-                <div class="divider"></div>
-                <button id="logout-btn" class="danger"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+        <div class="header-right" style="display: flex; align-items: center;">
+            <a href="${ROOT}empresas/cadastro" class="btn-primary" style="margin-right: 15px; text-decoration: none; font-size: 0.9rem; padding: 0.5rem 1rem; width: auto;">
+                <i class="fa-solid fa-plus"></i> Novo Cadastro
+            </a>
+            <div class="user-menu" id="user-menu">
+                <div class="user-menu-trigger" id="user-menu-trigger">
+                    <div class="user-avatar" id="user-avatar">?</div>
+                    <span id="user-display-name">Carregando...</span>
+                    <i class="fa-solid fa-chevron-down chevron"></i>
+                </div>
+                <div class="user-dropdown">
+                    <a href="${ROOT}perfil/"><i class="fa-solid fa-user"></i> Meu Perfil</a>
+                    <div class="divider"></div>
+                    <button id="logout-btn" class="danger"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+                </div>
             </div>
         </div>
     </header>`;

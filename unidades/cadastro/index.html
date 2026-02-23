@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Unidade - Gestor Esportivo</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../css/style.css">
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+
+    <style>
+        .registration-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .registration-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
+            padding: 30px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-header i {
+            font-size: 1.8rem;
+        }
+
+        .card-header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .form-footer {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .toast.success {
+            background-color: #10b981;
+        }
+
+        .toast.error {
+            background-color: #ef4444;
+        }
+
+        .hidden {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-footer {
+                flex-direction: column-reverse;
+            }
+
+            .form-footer button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <div class="registration-container">
+            <div class="registration-card">
+                <div class="card-header">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <h1>Cadastrar Nova Unidade</h1>
+                </div>
+
+                <div class="card-body">
+                    <form id="unidade-form">
+                        <div class="form-grid">
+                            <!-- Nome da Unidade -->
+                            <div class="form-group full-width">
+                                <label for="nome">Nome da Unidade <span style="color:red">*</span></label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-building"></i>
+                                    <input type="text" id="nome" placeholder="Ex: Unidade Centro" required>
+                                </div>
+                            </div>
+
+                            <!-- Responsável -->
+                            <div class="form-group">
+                                <label for="responsavel">Responsável</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                    <input type="text" id="responsavel" placeholder="Nome do Responsável">
+                                </div>
+                            </div>
+
+                            <!-- Telefone -->
+                            <div class="form-group">
+                                <label for="telefone">Telefone</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-phone"></i>
+                                    <input type="text" id="telefone" placeholder="(00) 00000-0000">
+                                </div>
+                            </div>
+
+                            <!-- E-mail -->
+                            <div class="form-group full-width">
+                                <label for="email">E-mail</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-envelope"></i>
+                                    <input type="email" id="email" placeholder="unidade@email.com">
+                                </div>
+                            </div>
+
+                            <!-- Endereço -->
+                            <div class="form-group">
+                                <label for="cep">CEP</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-map-pin"></i>
+                                    <input type="text" id="cep" placeholder="00000-000" maxlength="9">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="estado">Estado</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-map"></i>
+                                    <input type="text" id="estado" placeholder="UF" maxlength="2">
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="logradouro">Logradouro / Rua</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-road"></i>
+                                    <input type="text" id="logradouro" placeholder="Endereço Completo">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="numero">Nº</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-house"></i>
+                                    <input type="text" id="numero" placeholder="Ex: 123">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="cidade">Cidade</label>
+                                <div class="input-wrapper">
+                                    <i class="fa-solid fa-city"></i>
+                                    <input type="text" id="cidade" placeholder="Cidade">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-footer">
+                            <button type="button" id="btn-cancel" class="btn-secondary">Cancelar</button>
+                            <button type="submit" id="btn-save" class="btn-primary">Salvar Unidade</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Shared Header -->
+    <script src="/js/header.js" data-root-path="../../"></script>
+
+    <script>
+        let supabaseClient;
+        let empresaId;
+        let dashboardPath = '../../dashboard_empresa/index.html';
+
+        document.addEventListener('header-ready', async (e) => {
+            const { client, user } = e.detail;
+            supabaseClient = client;
+
+            const { data: profile } = await client
+                .from('usuarios')
+                .select('tipo_user, empresa_user')
+                .eq('id', user.id)
+                .single();
+
+            empresaId = profile?.empresa_user;
+
+            if (profile?.tipo_user === 'superadmin') {
+                dashboardPath = '../../dashboard/index.html';
+            } else {
+                dashboardPath = `../../dashboard_empresa/index.html?id=${empresaId}`;
+            }
+
+            document.getElementById('btn-cancel').onclick = () => window.location.href = dashboardPath;
+        });
+
+        // Máscara CEP
+        document.getElementById('cep').addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '').slice(0, 8);
+            if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+            e.target.value = v;
+
+            if (v.length === 9) buscarCEP(v.replace('-', ''));
+        });
+
+        // Buscar CEP
+        async function buscarCEP(cep) {
+            try {
+                const resp = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    document.getElementById('logradouro').value = data.street || '';
+                    document.getElementById('cidade').value = data.city || '';
+                    document.getElementById('estado').value = data.state || '';
+                }
+            } catch (e) { console.error('Erro CEP:', e); }
+        }
+
+        // Máscara Telefone
+        document.getElementById('telefone').addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '').slice(0, 11);
+            if (v.length > 10) {
+                v = `(${v.slice(0, 2)}) ${v.slice(2, 7)}-${v.slice(7)}`;
+            } else if (v.length > 6) {
+                v = `(${v.slice(0, 2)}) ${v.slice(2, 6)}-${v.slice(6)}`;
+            } else if (v.length > 2) {
+                v = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+            }
+            e.target.value = v;
+        });
+
+        // Submit form
+        document.getElementById('unidade-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!supabaseClient || !empresaId) {
+                showToast('Erro: Não foi possível identificar sua empresa. Recarregue a página.', 'error');
+                return;
+            }
+
+            const btnSave = document.getElementById('btn-save');
+            btnSave.disabled = true;
+            btnSave.textContent = 'Salvando...';
+
+            const payload = {
+                empresa_id: empresaId,
+                nome: document.getElementById('nome').value,
+                responsavel: document.getElementById('responsavel').value,
+                telefone: document.getElementById('telefone').value,
+                email: document.getElementById('email').value,
+                cep: document.getElementById('cep').value,
+                logradouro: document.getElementById('logradouro').value,
+                numero: document.getElementById('numero').value,
+                cidade: document.getElementById('cidade').value,
+                estado: document.getElementById('estado').value.toUpperCase()
+            };
+
+            try {
+                const { error } = await supabaseClient
+                    .from('unidades')
+                    .insert([payload]);
+
+                if (error) throw error;
+
+                showToast('Unidade cadastrada com sucesso!', 'success');
+                setTimeout(() => window.location.href = dashboardPath, 1500);
+
+            } catch (err) {
+                console.error('Erro ao salvar:', err);
+                showToast('Falha ao salvar unidade: ' + err.message, 'error');
+                btnSave.disabled = false;
+                btnSave.textContent = 'Salvar Unidade';
+            }
+        });
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = `toast show ${type}`;
+            setTimeout(() => toast.className = 'toast hidden', 3000);
+        }
+    </script>
+</body>
+
+</html>

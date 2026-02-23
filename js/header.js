@@ -20,13 +20,13 @@
     // ---- Inject Header HTML ----
     const headerHTML = `
     <header class="app-header" id="app-header">
-        <a href="${ROOT}dashboard" class="header-logo">
+        <a href="#" class="header-logo" id="header-logo-link">
             <i class="fa-solid fa-futbol"></i>
             Gestor Esportivo
         </a>
 
         <div class="header-right" style="display: flex; align-items: center;">
-            <a href="${ROOT}empresas/cadastro" class="btn-primary" style="margin-right: 15px; text-decoration: none; font-size: 0.9rem; padding: 0.5rem 1rem; width: auto;">
+            <a href="${ROOT}empresas/cadastro" class="btn-primary" id="btn-novo-cadastro" style="margin-right: 15px; text-decoration: none; font-size: 0.9rem; padding: 0.5rem 1rem; width: auto; display: none;">
                 <i class="fa-solid fa-plus"></i> Novo Cadastro
             </a>
             <div class="user-menu" id="user-menu">
@@ -80,10 +80,10 @@
 
         const user = session.user;
 
-        // Buscar nome na tabela usuarios
+        // Buscar nome e tipo na tabela usuarios
         const { data: profile } = await client
             .from('usuarios')
-            .select('nome')
+            .select('nome, tipo_user')
             .eq('id', user.id)
             .single();
 
@@ -92,6 +92,17 @@
 
         document.getElementById('user-display-name').textContent = name;
         document.getElementById('user-avatar').textContent = initial;
+
+        // Mostrar botão "Novo Cadastro" apenas se for superadmin
+        // E configurar link do logo
+        const logoLink = document.getElementById('header-logo-link');
+        if (profile?.tipo_user === 'superadmin') {
+            const btnNovo = document.getElementById('btn-novo-cadastro');
+            if (btnNovo) btnNovo.style.display = 'inline-block';
+            if (logoLink) logoLink.href = `${ROOT}dashboard/index.html`;
+        } else {
+            if (logoLink) logoLink.href = `${ROOT}dashboard_empresa/index.html`;
+        }
 
         // Expor dados para a página usar (ex: perfil)
         window.__headerUser = { user, name, initial, client };

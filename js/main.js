@@ -142,10 +142,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const user = data.user;
 
-            // Success - Now check role
+            // Success - Now check role and company
             const { data: profile, error: profileError } = await supabase
                 .from('usuarios')
-                .select('tipo_user')
+                .select('tipo_user, empresa_user')
                 .eq('id', user.id)
                 .single();
 
@@ -155,14 +155,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Falha ao verificar perfil de usuário.');
             }
 
+            console.log('[main.js] Tipo de usuário:', profile.tipo_user);
+
             if (profile.tipo_user === 'superadmin') {
                 showMessage(loginSuccessMsg, 'Login realizado com sucesso! Redirecionando...', false);
                 setTimeout(() => {
-                    window.location.href = 'dashboard/index.html';
+                    window.location.href = '/dashboard/index.html';
                 }, 1000);
             } else {
-                await supabase.auth.signOut();
-                showMessage(loginErrorMsg, 'Acesso restrito: Apenas superadministradores podem acessar o dashboard.');
+                showMessage(loginSuccessMsg, 'Login realizado com sucesso! Redirecionando...', false);
+                const empresaId = profile.empresa_user || 'null';
+                console.log('[main.js] Redirecionando usuário comum para empresa:', empresaId);
+                setTimeout(() => {
+                    // Usar caminho absoluto para evitar problemas de diretório
+                    const redirectUrl = `/dashboard_empresa/index.html?id=${empresaId}`;
+                    console.log('[main.js] Redirecionando para:', redirectUrl);
+                    window.location.href = redirectUrl;
+                }, 1000);
             }
 
         } catch (error) {

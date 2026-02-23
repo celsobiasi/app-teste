@@ -174,7 +174,7 @@
             </div>
 
             <div class="profile-footer">
-                <a href="../dashboard" class="btn-secondary"
+                <a href="../dashboard" id="btn-back-dashboard" class="btn-secondary"
                     style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px; width: auto; padding: 10px 24px;">
                     <i class="fa-solid fa-arrow-left"></i> Voltar ao Dashboard
                 </a>
@@ -211,6 +211,17 @@
                 document.getElementById('profile-since').textContent = date.toLocaleDateString('pt-BR', {
                     day: '2-digit', month: 'long', year: 'numeric'
                 });
+            }
+
+            // Configurar botão voltar dinâmico
+            const btnBack = document.getElementById('btn-back-dashboard');
+            if (btnBack) {
+                if (profile?.tipo_user === 'superadmin') {
+                    btnBack.href = '../dashboard/index.html';
+                } else {
+                    const empresaId = profile?.empresa_user || '';
+                    btnBack.href = `../dashboard_empresa/index.html?id=${empresaId}`;
+                }
             }
         });
     </script>

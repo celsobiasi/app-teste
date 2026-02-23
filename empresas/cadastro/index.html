@@ -170,8 +170,7 @@
                 </div>
 
                 <div class="form-footer" style="margin-top: 30px;">
-                    <button type="button" onclick="window.location.href='../../dashboard'"
-                        class="btn-secondary">Cancelar</button>
+                    <button type="button" id="btn-cancel" class="btn-secondary">Cancelar</button>
                     <button type="submit" id="btn-submit" class="btn-primary">Finalizar Cadastro</button>
                 </div>
             </form>
@@ -187,6 +186,28 @@
 
     <script>
         console.log('Script v7.1 Production - Inicializando');
+
+        let dashboardPath = '../../dashboard/index.html';
+
+        document.addEventListener('header-ready', async (e) => {
+            const { client, user } = e.detail;
+            const { data: profile } = await client
+                .from('usuarios')
+                .select('tipo_user, empresa_user')
+                .eq('id', user.id)
+                .single();
+
+            if (profile?.tipo_user !== 'superadmin') {
+                const empresaId = profile?.empresa_user || '';
+                dashboardPath = `../../dashboard_empresa/index.html?id=${empresaId}`;
+            }
+
+            // Atualizar botão cancelar
+            const btnCancel = document.getElementById('btn-cancel');
+            if (btnCancel) {
+                btnCancel.onclick = () => window.location.href = dashboardPath;
+            }
+        });
 
         // Configuração Supabase
         const SUPABASE_URL = 'https://pramywnhahowzsnqlshx.supabase.co';
@@ -388,7 +409,7 @@
                 }
 
                 showToast('Empresa cadastrada com sucesso!', 'success');
-                setTimeout(() => window.location.href = '../../dashboard', 1500);
+                setTimeout(() => window.location.href = dashboardPath, 1500);
             } catch (err) {
                 console.error('Save Error:', err);
                 // Only show fallback if we haven't shown a specific toast yet

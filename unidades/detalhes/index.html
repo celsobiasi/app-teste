@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Unidade - Gestor Esportivo</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
+
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--primary-blue);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-main);
+        }
+
+        .modal-body {
+            padding: 24px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Toggle List */
+        .modality-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modality-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .modality-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .modality-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modality-info i {
+            color: var(--primary-light);
+            font-size: 1.1rem;
+        }
+
+        .modality-name {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        /* Active Modalidades List */
+        .active-modalities-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .modality-tag {
+            background: #f1f5f9;
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        .modality-tag i {
+            color: var(--secondary-green);
+        }
+
+        .details-container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .unit-info-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .unit-icon-large {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        .unit-title-group h1 {
+            font-size: 1.75rem;
+            color: var(--primary-blue);
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .unit-title-group p {
+            margin: 4px 0 0 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+        }
+
+        .detail-card {
+            background: #fff;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            padding: 24px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-header i {
+            font-size: 1.25rem;
+            color: var(--primary-light);
+        }
+
+        .card-header h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .card-body {
+            padding: 24px;
+            flex-grow: 1;
+        }
+
+        .empty-state-inner {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon-inner {
+            font-size: 2.5rem;
+            color: var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            color: var(--primary-blue);
+        }
+
+        .loading-text {
+            margin-top: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        @media (max-width: 600px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .details-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Shared Header Component -->
+    <script src="/js/header.js" data-root-path="/"></script>
+
+    <div id="loading-screen" class="loading-overlay">
+        <i class="fa-solid fa-spinner fa-spin fa-3x"></i>
+        <p class="loading-text">Carregando detalhes da unidade...</p>
+    </div>
+
+    <div class="app-container">
+        <div class="details-container">
+            <div class="details-header">
+                <div class="unit-info-header">
+                    <div class="unit-icon-large" id="unit-icon">?</div>
+                    <div class="unit-title-group">
+                        <h1 id="unit-name">Carregando...</h1>
+                        <p id="unit-location"><i class="fa-solid fa-location-dot"></i> --</p>
+                    </div>
+                </div>
+                <a href="/unidades/" class="btn-secondary"
+                    style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-arrow-left"></i> Voltar
+                </a>
+            </div>
+
+            <div class="details-grid">
+                <!-- Modalidades Card -->
+                <div class="detail-card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-person-running"></i>
+                        <h2>Modalidades Oferecidas</h2>
+                        <button onclick="openModalitiesModal()" class="action-btn" title="Gerenciar Modalidades"
+                            style="margin-left: auto; border: none; background: none; cursor: pointer; color: var(--text-muted);">
+                            <i class="fa-solid fa-gear"></i>
+                        </button>
+                    </div>
+                    <div class="card-body" id="modalities-card-body">
+                        <div class="empty-state-inner">
+                            <i class="fa-solid fa-circle-info empty-icon-inner"></i>
+                            <p>Nenhuma modalidade cadastrada nesta unidade ainda.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Turmas Card -->
+                <div class="detail-card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-users"></i>
+                        <h2>Turmas Oferecidas</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="empty-state-inner">
+                            <i class="fa-solid fa-calendar-days empty-icon-inner"></i>
+                            <p>Nenhuma turma cadastrada para esta unidade.</p>
+                            <button class="btn-primary"
+                                style="margin-top: 15px; width: auto; font-size: 0.9rem; padding: 0.6rem 1.2rem;">
+                                <i class="fa-solid fa-plus"></i> Cadastrar Turma
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modalities Modal -->
+    <div id="modalities-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Gerenciar Modalidades</h3>
+                <button class="modal-close" onclick="closeModalitiesModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalities-modal-body">
+                <div class="modality-list" id="modality-list">
+                    <div style="text-align: center; color: var(--text-muted);">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Carregando modalidades...
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModalitiesModal()">Cancelar</button>
+                <button class="btn-primary" style="width: auto;" onclick="saveModalities()">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script>
+        let supabaseClient;
+        let unidadId;
+        let empresaId;
+        let allSystemModalities = [];
+        let unitModalities = [];
+
+        document.addEventListener('header-ready', async (e) => {
+            const { client, user } = e.detail;
+            supabaseClient = client;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            unidadId = urlParams.get('id');
+
+            if (!unidadId) {
+                showToast('Erro: ID da unidade não informado.', 'error');
+                setTimeout(() => window.location.href = '/unidades/', 2000);
+                return;
+            }
+
+            // Get empresaId from profile
+            const { data: profile } = await client
+                .from('usuarios')
+                .select('empresa_user')
+                .eq('id', user.id)
+                .single();
+
+            empresaId = profile?.empresa_user;
+
+            await loadUnitData();
+            await loadActiveModalities();
+        });
+
+        async function loadUnitData() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('unidades')
+                    .select('*')
+                    .eq('id', unidadId)
+                    .single();
+
+                if (error) throw error;
+
+                if (data) {
+                    document.getElementById('unit-name').textContent = data.nome || 'Unidade sem nome';
+                    document.getElementById('unit-icon').textContent = data.nome ? data.nome.charAt(0).toUpperCase() : '?';
+
+                    const addressParts = [
+                        data.logradouro ? data.logradouro + (data.numero ? ', ' + data.numero : '') : null,
+                        data.cidade ? data.cidade : null
+                    ].filter(Boolean);
+                    document.getElementById('unit-location').innerHTML = `<i class="fa-solid fa-location-dot"></i> ${addressParts.join(' • ') || 'Endereço não informado'}`;
+
+                    document.title = `${data.nome} - Detalhes - Gestor Esportivo`;
+                }
+            } catch (err) {
+                console.error('Erro ao carregar unidade:', err);
+                showToast('Falha ao carregar dados da unidade.', 'error');
+            } finally {
+                document.getElementById('loading-screen').style.display = 'none';
+            }
+        }
+
+        async function loadActiveModalities() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('modalidade_unidade')
+                    .select('modalidade_id, modalidade_sistema(nome)')
+                    .eq('unidade_id', unidadId);
+
+                if (error) throw error;
+
+                unitModalities = data || [];
+                renderModalitiesCard();
+            } catch (err) {
+                console.error('Erro ao carregar modalidades da unidade:', err);
+            }
+        }
+
+        function renderModalitiesCard() {
+            const cardBody = document.getElementById('modalities-card-body');
+
+            if (unitModalities.length === 0) {
+                cardBody.innerHTML = `
+                    <div class="empty-state-inner">
+                        <i class="fa-solid fa-circle-info empty-icon-inner"></i>
+                        <p>Nenhuma modalidade vinculada a esta unidade ainda.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const listHTML = unitModalities.map(m => `
+                <div class="modality-tag">
+                    <i class="fa-solid fa-check"></i>
+                    <span>${m.modalidade_sistema?.nome || '???'}</span>
+                </div>
+            `).join('');
+
+            cardBody.innerHTML = `<div class="active-modalities-list">${listHTML}</div>`;
+        }
+
+        async function openModalitiesModal() {
+            const modal = document.getElementById('modalities-modal');
+            const listContainer = document.getElementById('modality-list');
+            modal.classList.add('show');
+
+            listContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>`;
+
+            try {
+                // Fetch all system modalities if not loaded
+                if (allSystemModalities.length === 0) {
+                    const { data, error } = await supabaseClient
+                        .from('modalidade_sistema')
+                        .select('*')
+                        .order('nome');
+
+                    if (error) throw error;
+                    allSystemModalities = data || [];
+                }
+
+                // Render list with toggles
+                const activeIds = unitModalities.map(m => m.modalidade_id);
+
+                listContainer.innerHTML = allSystemModalities.map(m => `
+                    <div class="modality-item">
+                        <div class="modality-info">
+                            <i class="fa-solid fa-medal"></i>
+                            <span class="modality-name">${m.nome}</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="mod-${m.id}" ${activeIds.includes(m.id) ? 'checked' : ''}>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error('Erro ao listar modalidades:', err);
+                listContainer.innerHTML = `<p style="color: red; text-align: center;">Erro ao carregar lista.</p>`;
+            }
+        }
+
+        function closeModalitiesModal() {
+            document.getElementById('modalities-modal').classList.remove('show');
+        }
+
+        async function saveModalities() {
+            if (!empresaId || !unidadId) return;
+
+            const btnSave = document.querySelector('.modal-footer .btn-primary');
+            const originalText = btnSave.textContent;
+            btnSave.disabled = true;
+            btnSave.textContent = 'Salvando...';
+
+            try {
+                const selectedIds = allSystemModalities
+                    .filter(m => document.getElementById(`mod-${m.id}`).checked)
+                    .map(m => m.id);
+
+                // 1. Delete existing
+                const { error: delError } = await supabaseClient
+                    .from('modalidade_unidade')
+                    .delete()
+                    .eq('unidade_id', unidadId);
+
+                if (delError) throw delError;
+
+                // 2. Insert new
+                if (selectedIds.length > 0) {
+                    const payload = selectedIds.map(id => ({
+                        modalidade_id: id,
+                        unidade_id: unidadId,
+                        empresa_id: empresaId
+                    }));
+
+                    const { error: insError } = await supabaseClient
+                        .from('modalidade_unidade')
+                        .insert(payload);
+
+                    if (insError) throw insError;
+                }
+
+                showToast('Modalidades atualizadas com sucesso!', 'success');
+                closeModalitiesModal();
+                await loadActiveModalities();
+
+            } catch (err) {
+                console.error('Erro ao salvar modalidades:', err);
+                showToast('Falha ao salvar: ' + err.message, 'error');
+            } finally {
+                btnSave.disabled = false;
+                btnSave.textContent = originalText;
+            }
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.textContent = msg;
+                toast.className = `toast show ${type}`;
+                setTimeout(() => toast.className = 'toast hidden', 3000);
+            } else {
+                alert(msg);
+            }
+        }
+    </script>
+</body>
+
+</html>

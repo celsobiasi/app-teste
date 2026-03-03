@@ -670,6 +670,67 @@
         </div>
     </div>
 
+    <!-- Registration Modal -->
+    <div id="registration-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Configurar Inscrições</h3>
+                <button class="modal-close" onclick="closeRegistrationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="reg-class-id">
+
+                <div class="form-group"
+                    style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+                    <label style="margin: 0; font-weight: 600; color: var(--text-main);">Status das Inscrições</label>
+                    <label class="switch">
+                        <input type="checkbox" id="reg-active">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label for="reg-start">Início das Inscrições</label>
+                        <input type="datetime-local" id="reg-start" class="input-field"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-end">Fim das Inscrições</label>
+                        <input type="datetime-local" id="reg-end" class="input-field"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Sexo da Turma</label>
+                    <div style="display: flex; gap: 12px; margin-top: 8px;">
+                        <label
+                            style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;"
+                            class="sexo-option">
+                            <input type="radio" name="reg-sexo" value="masculino"> Masculino
+                        </label>
+                        <label
+                            style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;"
+                            class="sexo-option">
+                            <input type="radio" name="reg-sexo" value="feminino"> Feminino
+                        </label>
+                        <label
+                            style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; background: #fff;"
+                            class="sexo-option">
+                            <input type="radio" name="reg-sexo" value="misto" checked> Misto
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeRegistrationModal()">Cancelar</button>
+                <button class="btn-primary" style="width: auto;" onclick="saveRegistrationConfig()">Salvar
+                    Configuração</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Confirmation Modal -->
     <div id="delete-modal" class="modal">
         <div class="modal-content" style="max-width: 450px;">
@@ -1007,12 +1068,15 @@
                 cardBody.innerHTML = `
                     <div style="display: grid; gap: 12px;">
                         ${data.map(t => `
-                            <div style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #fff;">
+                            <div style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #fff; position: relative;">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
                                     <div>
-                                        <h4 style="margin: 0; color: var(--primary-color);">${t.nome_turma}</h4>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <h4 style="margin: 0; color: var(--primary-color);">${t.nome_turma}</h4>
+                                            ${t.inscricao_ativa ? '<span style="font-size: 0.65rem; background: var(--secondary-green); color: white; padding: 2px 6px; border-radius: 10px; text-transform: uppercase; font-weight: 700;">Inscrições Abertas</span>' : ''}
+                                        </div>
                                         <p style="margin: 4px 0 0; font-size: 0.8rem; color: var(--text-muted);">
-                                            ${t.modalidade_sistema?.nome || '???'} • ${t.categoria_sistema?.nome || '???'}
+                                            ${t.modalidade_sistema?.nome || '???'} • ${t.categoria_sistema?.nome || '???'} • <span style="text-transform: capitalize;">${t.sexo_turma || 'misto'}</span>
                                         </p>
                                     </div>
                                     <div style="display: flex; gap: 8px;">
@@ -1022,17 +1086,22 @@
                                         <button onclick="confirmDeleteClass('${t.id}')" class="action-btn-sm" title="Excluir" style="color: var(--destructive); background: #fef2f2; border: 1px solid #fee2e2; padding: 4px 8px; border-radius: 6px; cursor: pointer;">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
-                                        <span style="font-size: 0.75rem; font-weight: 600; background: var(--secondary-green); color: white; padding: 2px 8px; border-radius: 12px; margin-left: 4px; align-self: center;">
+                                        <span style="font-size: 0.75rem; font-weight: 600; background: #f1f5f9; color: var(--text-main); padding: 2px 8px; border-radius: 12px; border: 1px solid var(--border-color);">
                                             ${t.vagas} vagas
                                         </span>
                                     </div>
                                 </div>
-                                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px;">
                                     ${t.horarios.map(h => `
                                         <span style="font-size: 0.7rem; color: var(--text-main); background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0;">
                                             ${h.dia.charAt(0).toUpperCase() + h.dia.slice(1)}: ${h.inicio} - ${h.fim}
                                         </span>
                                     `).join('')}
+                                </div>
+                                <div style="border-top: 1px solid #f1f5f9; padding-top: 10px; display: flex; justify-content: flex-end;">
+                                    <button onclick="openRegistrationModal('${t.id}')" class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 0.8rem; background: var(--primary-blue); display: flex; align-items: center; gap: 6px;">
+                                        <i class="fa-solid fa-calendar-plus"></i> Abrir inscrições
+                                    </button>
                                 </div>
                             </div>
                         `).join('')}
@@ -1308,6 +1377,91 @@
 
             } catch (err) {
                 console.error('Erro ao salvar modalidades:', err);
+                showToast('Falha ao salvar: ' + err.message, 'error');
+            } finally {
+                btnSave.disabled = false;
+                btnSave.textContent = originalText;
+            }
+        }
+
+        // --- Registration Management ---
+        async function openRegistrationModal(classId) {
+            const modal = document.getElementById('registration-modal');
+            document.getElementById('reg-class-id').value = classId;
+
+            modal.classList.add('show');
+
+            try {
+                const { data: t, error } = await supabaseClient
+                    .from('turmas')
+                    .select('inscricao_ativa, inscricao_inicio, inscricao_fim, sexo_turma')
+                    .eq('id', classId)
+                    .single();
+
+                if (error) throw error;
+
+                document.getElementById('reg-active').checked = t.inscricao_ativa || false;
+
+                // Formatar datas para o input datetime-local (YYYY-MM-DDThh:mm)
+                if (t.inscricao_inicio) {
+                    const d = new Date(t.inscricao_inicio);
+                    document.getElementById('reg-start').value = d.toISOString().slice(0, 16);
+                } else {
+                    document.getElementById('reg-start').value = '';
+                }
+
+                if (t.inscricao_fim) {
+                    const d = new Date(t.inscricao_fim);
+                    document.getElementById('reg-end').value = d.toISOString().slice(0, 16);
+                } else {
+                    document.getElementById('reg-end').value = '';
+                }
+
+                const sexo = t.sexo_turma || 'misto';
+                const radio = document.querySelector(`input[name="reg-sexo"][value="${sexo}"]`);
+                if (radio) radio.checked = true;
+
+            } catch (err) {
+                console.error('Erro ao buscar config de inscrição:', err);
+                showToast('Erro ao carregar configurações.', 'error');
+            }
+        }
+
+        function closeRegistrationModal() {
+            document.getElementById('registration-modal').classList.remove('show');
+        }
+
+        async function saveRegistrationConfig() {
+            const classId = document.getElementById('reg-class-id').value;
+            const active = document.getElementById('reg-active').checked;
+            const start = document.getElementById('reg-start').value;
+            const end = document.getElementById('reg-end').value;
+            const sexo = document.querySelector('input[name="reg-sexo"]:checked').value;
+
+            const btnSave = document.querySelector('#registration-modal .btn-primary');
+            const originalText = btnSave.textContent;
+            btnSave.disabled = true;
+            btnSave.textContent = 'Salvando...';
+
+            try {
+                const { error } = await supabaseClient
+                    .from('turmas')
+                    .update({
+                        inscricao_ativa: active,
+                        inscricao_inicio: start || null,
+                        inscricao_fim: end || null,
+                        sexo_turma: sexo
+                    })
+                    .eq('id', classId);
+
+                if (error) throw error;
+
+                showToast('Configuração de inscrição salva!', 'success');
+                closeRegistrationModal();
+                await loadClassesData();
+
+            } catch (err) {
+                console.error('Erro ao salvar inscrição:', err);
                 showToast('Falha ao salvar: ' + err.message, 'error');
             } finally {
                 btnSave.disabled = false;

@@ -163,6 +163,162 @@
             color: var(--secondary-green);
         }
 
+        /* Search and Form styles */
+        .modal-search-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            color: var(--text-muted);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px 10px 36px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .add-modality-trigger {
+            color: var(--primary-blue);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+
+        .add-modality-trigger:hover {
+            text-decoration: underline;
+        }
+
+        .add-modality-form {
+            display: none;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 16px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        /* Schedule Picker */
+        .schedule-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .schedule-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 1fr;
+            align-items: center;
+            gap: 12px;
+            padding: 8px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .schedule-row.disabled {
+            opacity: 0.5;
+            background: #f1f5f9;
+        }
+
+        .day-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .time-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-inputs span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .time-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .select-field {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: white;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
         .details-container {
             max-width: 1000px;
             width: 100%;
@@ -352,18 +508,189 @@
                     <div class="card-header">
                         <i class="fa-solid fa-users"></i>
                         <h2>Turmas Oferecidas</h2>
+                        <button onclick="openClassModal()" class="action-btn" title="Gerenciar Turmas"
+                            style="margin-left: auto; border: none; background: none; cursor: pointer; color: var(--text-muted);">
+                            <i class="fa-solid fa-gear"></i>
+                        </button>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body" id="classes-card-body">
                         <div class="empty-state-inner">
                             <i class="fa-solid fa-calendar-days empty-icon-inner"></i>
                             <p>Nenhuma turma cadastrada para esta unidade.</p>
-                            <button class="btn-primary"
-                                style="margin-top: 15px; width: auto; font-size: 0.9rem; padding: 0.6rem 1.2rem;">
-                                <i class="fa-solid fa-plus"></i> Cadastrar Turma
-                            </button>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Class Modal -->
+    <div id="class-modal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Cadastrar Nova Turma</h3>
+                <button class="modal-close" onclick="closeClassModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="max-height: 550px;">
+                <div class="form-group">
+                    <label for="class-name">Nome da Turma</label>
+                    <input type="text" id="class-name" class="input-field" placeholder="Ex: Iniciante Manhã A"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label for="class-modality">Modalidade</label>
+                        <select id="class-modality" class="select-field">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="class-category">Categoria</label>
+                        <select id="class-category" class="select-field">
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="class-vacancies">Número de Vagas</label>
+                    <input type="number" id="class-vacancies" class="input-field" placeholder="Ex: 20"
+                        style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+                </div>
+
+                <div class="form-group">
+                    <label>Dias e Horários</label>
+                    <div class="schedule-grid" id="schedule-picker">
+                        <!-- Monday -->
+                        <div class="schedule-row disabled" data-day="segunda">
+                            <label class="day-label">
+                                <input type="checkbox" onchange="toggleDayRow(this)"> Segunda
+                            </label>
+                            <div class="time-inputs">
+                                <span>De:</span>
+                                <input type="time" class="time-input start" disabled>
+                            </div>
+                            <div class="time-inputs">
+                                <span>Até:</span>
+                                <input type="time" class="time-input end" disabled>
+                            </div>
+                        </div>
+                        <!-- Tuesday -->
+                        <div class="schedule-row disabled" data-day="terça">
+                            <label class="day-label">
+                                <input type="checkbox" onchange="toggleDayRow(this)"> Terça
+                            </label>
+                            <div class="time-inputs">
+                                <span>De:</span>
+                                <input type="time" class="time-input start" disabled>
+                            </div>
+                            <div class="time-inputs">
+                                <span>Até:</span>
+                                <input type="time" class="time-input end" disabled>
+                            </div>
+                        </div>
+                        <!-- Wednesday -->
+                        <div class="schedule-row disabled" data-day="quarta">
+                            <label class="day-label">
+                                <input type="checkbox" onchange="toggleDayRow(this)"> Quarta
+                            </label>
+                            <div class="time-inputs">
+                                <span>De:</span>
+                                <input type="time" class="time-input start" disabled>
+                            </div>
+                            <div class="time-inputs">
+                                <span>Até:</span>
+                                <input type="time" class="time-input end" disabled>
+                            </div>
+                        </div>
+                        <!-- Thursday -->
+                        <div class="schedule-row disabled" data-day="quinta">
+                            <label class="day-label">
+                                <input type="checkbox" onchange="toggleDayRow(this)"> Quinta
+                            </label>
+                            <div class="time-inputs">
+                                <span>De:</span>
+                                <input type="time" class="time-input start" disabled>
+                            </div>
+                            <div class="time-inputs">
+                                <span>Até:</span>
+                                <input type="time" class="time-input end" disabled>
+                            </div>
+                        </div>
+                        <!-- Friday -->
+                        <div class="schedule-row disabled" data-day="sexta">
+                            <label class="day-label">
+                                <input type="checkbox" onchange="toggleDayRow(this)"> Sexta
+                            </label>
+                            <div class="time-inputs">
+                                <span>De:</span>
+                                <input type="time" class="time-input start" disabled>
+                            </div>
+                            <div class="time-inputs">
+                                <span>Até:</span>
+                                <input type="time" class="time-input end" disabled>
+                            </div>
+                        </div>
+                        <!-- Saturday -->
+                        <div class="schedule-row disabled" data-day="sábado">
+                            <label class="day-label">
+                                <input type="checkbox" onchange="toggleDayRow(this)"> Sábado
+                            </label>
+                            <div class="time-inputs">
+                                <span>De:</span>
+                                <input type="time" class="time-input start" disabled>
+                            </div>
+                            <div class="time-inputs">
+                                <span>Até:</span>
+                                <input type="time" class="time-input end" disabled>
+                            </div>
+                        </div>
+                        <!-- Sunday -->
+                        <div class="schedule-row disabled" data-day="domingo">
+                            <label class="day-label">
+                                <input type="checkbox" onchange="toggleDayRow(this)"> Domingo
+                            </label>
+                            <div class="time-inputs">
+                                <span>De:</span>
+                                <input type="time" class="time-input start" disabled>
+                            </div>
+                            <div class="time-inputs">
+                                <span>Até:</span>
+                                <input type="time" class="time-input end" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeClassModal()">Cancelar</button>
+                <button class="btn-primary" style="width: auto;" onclick="saveClass()">Salvar Turma</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3>Excluir Turma</h3>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 40px 24px;">
+                <div style="color: #ef4444; font-size: 3.5rem; margin-bottom: 20px;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                </div>
+                <p style="color: var(--text-main); font-size: 1.1rem; font-weight: 500; margin-bottom: 8px;">Tem certeza
+                    que deseja excluir esta turma?</p>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Esta ação não poderá ser desfeita e todos os
+                    dados associados serão removidos.</p>
+            </div>
+            <div class="modal-footer"
+                style="background: #fff; border-top: none; justify-content: center; padding-bottom: 30px;">
+                <button class="btn-secondary" style="min-width: 120px;" onclick="closeDeleteModal()">Cancelar</button>
+                <button id="confirm-delete-btn" class="btn-primary"
+                    style="background: #ef4444; border-color: #ef4444; min-width: 120px; width: auto;">Excluir</button>
             </div>
         </div>
     </div>
@@ -376,6 +703,32 @@
                 <button class="modal-close" onclick="closeModalitiesModal()">&times;</button>
             </div>
             <div class="modal-body" id="modalities-modal-body">
+                <div class="modal-search-container">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="modality-search" placeholder="Pesquisar modalidade..."
+                            onkeyup="filterModalities()">
+                    </div>
+                    <button class="add-modality-trigger" onclick="showAddModalityForm()">
+                        <i class="fa-solid fa-plus-circle"></i> Não encontrou? Cadastrar nova modalidade
+                    </button>
+                </div>
+
+                <!-- Add Modality Form (Hidden by default) -->
+                <div id="add-modality-form" class="add-modality-form">
+                    <div class="form-group">
+                        <label for="new-modality-name">Nome da Modalidade</label>
+                        <input type="text" id="new-modality-name" class="input-field" placeholder="Ex: Beach Tennis"
+                            style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px;">
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;"
+                            onclick="hideAddModalityForm()">Cancelar</button>
+                        <button class="btn-primary" style="padding: 6px 12px; font-size: 0.85rem; width: auto;"
+                            onclick="saveNewModality()">Salvar Modalidade</button>
+                    </div>
+                </div>
+
                 <div class="modality-list" id="modality-list">
                     <div style="text-align: center; color: var(--text-muted);">
                         <i class="fa-solid fa-spinner fa-spin"></i> Carregando modalidades...
@@ -397,6 +750,7 @@
         let empresaId;
         let allSystemModalities = [];
         let unitModalities = [];
+        let editingClassId = null;
 
         document.addEventListener('header-ready', async (e) => {
             const { client, user } = e.detail;
@@ -422,6 +776,7 @@
 
             await loadUnitData();
             await loadActiveModalities();
+            await loadClassesData();
         });
 
         async function loadUnitData() {
@@ -496,6 +851,11 @@
         async function openModalitiesModal() {
             const modal = document.getElementById('modalities-modal');
             const listContainer = document.getElementById('modality-list');
+
+            // Reset search and form
+            document.getElementById('modality-search').value = '';
+            hideAddModalityForm();
+
             modal.classList.add('show');
 
             listContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Carregando...</div>`;
@@ -512,21 +872,7 @@
                     allSystemModalities = data || [];
                 }
 
-                // Render list with toggles
-                const activeIds = unitModalities.map(m => m.modalidade_id);
-
-                listContainer.innerHTML = allSystemModalities.map(m => `
-                    <div class="modality-item">
-                        <div class="modality-info">
-                            <i class="fa-solid fa-medal"></i>
-                            <span class="modality-name">${m.nome}</span>
-                        </div>
-                        <label class="switch">
-                            <input type="checkbox" id="mod-${m.id}" ${activeIds.includes(m.id) ? 'checked' : ''}>
-                            <span class="slider round"></span>
-                        </label>
-                    </div>
-                `).join('');
+                renderModalityList(allSystemModalities);
 
             } catch (err) {
                 console.error('Erro ao listar modalidades:', err);
@@ -534,8 +880,390 @@
             }
         }
 
+        function renderModalityList(modalities) {
+            const listContainer = document.getElementById('modality-list');
+            const activeIds = unitModalities.map(m => m.modalidade_id);
+
+            if (modalities.length === 0) {
+                listContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted); padding: 20px;">Nenhuma modalidade encontrada.</p>`;
+                return;
+            }
+
+            listContainer.innerHTML = modalities.map(m => `
+                <div class="modality-item">
+                    <div class="modality-info">
+                        <i class="fa-solid fa-medal"></i>
+                        <span class="modality-name">${m.nome}</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="mod-${m.id}" ${activeIds.includes(m.id) ? 'checked' : ''}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            `).join('');
+        }
+
+        function filterModalities() {
+            const query = document.getElementById('modality-search').value.toLowerCase();
+            const filtered = allSystemModalities.filter(m =>
+                m.nome.toLowerCase().includes(query)
+            );
+            renderModalityList(filtered);
+        }
+
+        function showAddModalityForm() {
+            document.getElementById('add-modality-form').style.display = 'block';
+            document.getElementById('new-modality-name').focus();
+        }
+
+        function hideAddModalityForm() {
+            document.getElementById('add-modality-form').style.display = 'none';
+            document.getElementById('new-modality-name').value = '';
+        }
+
+        async function saveNewModality() {
+            const nameInput = document.getElementById('new-modality-name');
+            const nome = nameInput.value.trim();
+
+            if (!nome) {
+                showToast('Por favor, informe o nome da modalidade.', 'error');
+                return;
+            }
+
+            const btnSave = document.querySelector('#add-modality-form .btn-primary');
+            const originalText = btnSave.textContent;
+            btnSave.disabled = true;
+            btnSave.textContent = 'Salvando...';
+
+            try {
+                // 1. Check if already exists in memory
+                const exists = allSystemModalities.some(m => m.nome.toLowerCase() === nome.toLowerCase());
+                if (exists) {
+                    showToast('Esta modalidade já existe no sistema.', 'warning');
+                    return;
+                }
+
+                // 2. Insert into Supabase
+                const { data, error } = await supabaseClient
+                    .from('modalidade_sistema')
+                    .insert([{ nome }])
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                // 3. Update local list
+                allSystemModalities.push(data);
+                allSystemModalities.sort((a, b) => a.nome.localeCompare(b.nome));
+
+                // 4. Reset UI
+                hideAddModalityForm();
+                document.getElementById('modality-search').value = '';
+                renderModalityList(allSystemModalities);
+
+                showToast('Modalidade cadastrada com sucesso!', 'success');
+
+                // Auto-check the new modality
+                setTimeout(() => {
+                    const checkbox = document.getElementById(`mod-${data.id}`);
+                    if (checkbox) checkbox.checked = true;
+                }, 100);
+
+            } catch (err) {
+                console.error('Erro ao cadastrar modalidade:', err);
+                showToast('Falha ao cadastrar: ' + err.message, 'error');
+            } finally {
+                btnSave.disabled = false;
+                btnSave.textContent = originalText;
+            }
+        }
+
         function closeModalitiesModal() {
             document.getElementById('modalities-modal').classList.remove('show');
+        }
+
+        // --- Class Management Functions ---
+        async function loadClassesData() {
+            const cardBody = document.getElementById('classes-card-body');
+            try {
+                const { data, error } = await supabaseClient
+                    .from('turmas')
+                    .select('*, modalidade_sistema(nome), categoria_sistema(nome)')
+                    .eq('unidade_id', unidadId)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    cardBody.innerHTML = `
+                        <div class="empty-state-inner">
+                            <i class="fa-solid fa-calendar-days empty-icon-inner"></i>
+                            <p>Nenhuma turma cadastrada para esta unidade.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                cardBody.innerHTML = `
+                    <div style="display: grid; gap: 12px;">
+                        ${data.map(t => `
+                            <div style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: #fff;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                    <div>
+                                        <h4 style="margin: 0; color: var(--primary-color);">${t.nome_turma}</h4>
+                                        <p style="margin: 4px 0 0; font-size: 0.8rem; color: var(--text-muted);">
+                                            ${t.modalidade_sistema?.nome || '???'} • ${t.categoria_sistema?.nome || '???'}
+                                        </p>
+                                    </div>
+                                    <div style="display: flex; gap: 8px;">
+                                        <button onclick="editClass('${t.id}')" class="action-btn-sm" title="Editar" style="color: var(--primary-color); background: #eff6ff; border: 1px solid #dbeafe; padding: 4px 8px; border-radius: 6px; cursor: pointer;">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button onclick="confirmDeleteClass('${t.id}')" class="action-btn-sm" title="Excluir" style="color: var(--destructive); background: #fef2f2; border: 1px solid #fee2e2; padding: 4px 8px; border-radius: 6px; cursor: pointer;">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                        <span style="font-size: 0.75rem; font-weight: 600; background: var(--secondary-green); color: white; padding: 2px 8px; border-radius: 12px; margin-left: 4px; align-self: center;">
+                                            ${t.vagas} vagas
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                                    ${t.horarios.map(h => `
+                                        <span style="font-size: 0.7rem; color: var(--text-main); background: #f1f5f9; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0;">
+                                            ${h.dia.charAt(0).toUpperCase() + h.dia.slice(1)}: ${h.inicio} - ${h.fim}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (err) {
+                console.error('Erro ao carregar turmas:', err);
+            }
+        }
+
+        async function openClassModal(classId = null) {
+            const modal = document.getElementById('class-modal');
+            const modSelect = document.getElementById('class-modality');
+            const catSelect = document.getElementById('class-category');
+            const modalTitle = modal.querySelector('.modal-header h3');
+
+            editingClassId = classId;
+            modalTitle.textContent = classId ? 'Editar Turma' : 'Cadastrar Nova Turma';
+
+            // Clear fields
+            document.getElementById('class-name').value = '';
+            document.getElementById('class-vacancies').value = '';
+            resetSchedulePicker();
+
+            modal.classList.add('show');
+
+            try {
+                // Load modalities (only those linked to the unit)
+                if (unitModalities.length === 0) {
+                    await loadActiveModalities();
+                }
+
+                modSelect.innerHTML = '<option value="">Selecione...</option>' +
+                    unitModalities.map(m => `<option value="${m.modalidade_id}">${m.modalidade_sistema?.nome}</option>`).join('');
+
+                // Load categories
+                const { data: categories, error: catError } = await supabaseClient
+                    .from('categoria_sistema')
+                    .select('*')
+                    .order('idade_minima');
+
+                if (catError) throw catError;
+
+                catSelect.innerHTML = '<option value="">Selecione...</option>' +
+                    categories.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+
+                // If editing, load class data
+                if (classId) {
+                    const { data: turma, error: tError } = await supabaseClient
+                        .from('turmas')
+                        .select('*')
+                        .eq('id', classId)
+                        .single();
+
+                    if (tError) throw tError;
+
+                    document.getElementById('class-name').value = turma.nome_turma;
+                    document.getElementById('class-modality').value = turma.modalidade_id;
+                    document.getElementById('class-category').value = turma.categoria_id;
+                    document.getElementById('class-vacancies').value = turma.vagas;
+
+                    // Set schedules
+                    turma.horarios.forEach(h => {
+                        const row = document.querySelector(`.schedule-row[data-day="${h.dia}"]`);
+                        if (row) {
+                            const cb = row.querySelector('input[type="checkbox"]');
+                            cb.checked = true;
+                            toggleDayRow(cb);
+                            row.querySelector('.start').value = h.inicio;
+                            row.querySelector('.end').value = h.fim;
+                        }
+                    });
+                }
+
+            } catch (err) {
+                console.error('Erro ao carregar dados do modal:', err);
+                showToast('Erro ao carregar opções.', 'error');
+            }
+        }
+
+        function closeClassModal() {
+            document.getElementById('class-modal').classList.remove('show');
+            editingClassId = null;
+        }
+
+        function editClass(id) {
+            openClassModal(id);
+        }
+
+        function confirmDeleteClass(id) {
+            const modal = document.getElementById('delete-modal');
+            const confirmBtn = document.getElementById('confirm-delete-btn');
+
+            modal.classList.add('show');
+            confirmBtn.onclick = () => deleteClass(id);
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.remove('show');
+        }
+
+        async function deleteClass(id) {
+            const btn = document.getElementById('confirm-delete-btn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Excluindo...';
+
+            try {
+                const { error } = await supabaseClient
+                    .from('turmas')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                showToast('Turma excluída com sucesso!', 'success');
+                closeDeleteModal();
+                await loadClassesData();
+            } catch (err) {
+                console.error('Erro ao excluir turma:', err);
+                showToast('Falha ao excluir turma.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+
+        function toggleDayRow(checkbox) {
+            const row = checkbox.closest('.schedule-row');
+            const inputs = row.querySelectorAll('.time-input');
+            if (checkbox.checked) {
+                row.classList.remove('disabled');
+                inputs.forEach(i => i.disabled = false);
+            } else {
+                row.classList.add('disabled');
+                inputs.forEach(i => {
+                    i.disabled = true;
+                    i.value = '';
+                });
+            }
+        }
+
+        function resetSchedulePicker() {
+            const rows = document.querySelectorAll('.schedule-row');
+            rows.forEach(row => {
+                const cb = row.querySelector('input[type="checkbox"]');
+                cb.checked = false;
+                toggleDayRow(cb);
+            });
+        }
+
+        async function saveClass() {
+            const nome = document.getElementById('class-name').value.trim();
+            const modId = document.getElementById('class-modality').value;
+            const catId = document.getElementById('class-category').value;
+            const vacancies = document.getElementById('class-vacancies').value;
+
+            if (!nome || !modId || !catId || !vacancies) {
+                showToast('Por favor, preencha todos os campos obrigatórios.', 'warning');
+                return;
+            }
+
+            // Collect schedules
+            const schedules = [];
+            const rows = document.querySelectorAll('.schedule-row');
+            rows.forEach(row => {
+                const checked = row.querySelector('input[type="checkbox"]').checked;
+                if (checked) {
+                    const dia = row.dataset.day;
+                    const inicio = row.querySelector('.start').value;
+                    const fim = row.querySelector('.end').value;
+                    if (inicio && fim) {
+                        schedules.push({ dia, inicio, fim });
+                    }
+                }
+            });
+
+            if (schedules.length === 0) {
+                showToast('Por favor, defina ao menos um dia e horário.', 'warning');
+                return;
+            }
+
+            const btnSave = document.querySelector('#class-modal .btn-primary');
+            const originalText = btnSave.textContent;
+            btnSave.disabled = true;
+            btnSave.textContent = 'Salvando...';
+
+            try {
+                let error;
+                if (editingClassId) {
+                    // Update
+                    const { error: updateError } = await supabaseClient
+                        .from('turmas')
+                        .update({
+                            modalidade_id: modId,
+                            categoria_id: catId,
+                            nome_turma: nome,
+                            vagas: parseInt(vacancies),
+                            horarios: schedules
+                        })
+                        .eq('id', editingClassId);
+                    error = updateError;
+                } else {
+                    // Insert
+                    const { error: insertError } = await supabaseClient
+                        .from('turmas')
+                        .insert([{
+                            unidade_id: unidadId,
+                            modalidade_id: modId,
+                            categoria_id: catId,
+                            empresa_id: empresaId,
+                            nome_turma: nome,
+                            vagas: parseInt(vacancies),
+                            horarios: schedules
+                        }]);
+                    error = insertError;
+                }
+
+                if (error) throw error;
+
+                showToast(editingClassId ? 'Turma atualizada com sucesso!' : 'Turma cadastrada com sucesso!', 'success');
+                closeClassModal();
+                await loadClassesData();
+
+            } catch (err) {
+                console.error('Erro ao salvar turma:', err);
+                showToast('Falha ao salvar: ' + err.message, 'error');
+            } finally {
+                btnSave.disabled = false;
+                btnSave.textContent = originalText;
+            }
         }
 
         async function saveModalities() {

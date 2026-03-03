@@ -150,10 +150,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Header ready (provides supabase client) ---
-    document.addEventListener('header-ready', (e) => {
-        supabaseClient = e.detail.client;
+    function initList() {
+        supabaseClient = window.__headerUser.client;
         loadCompanies();
-    });
+    }
+
+    if (window.__headerUser) {
+        // Header já carregou antes deste script (comum no Vercel)
+        initList();
+    } else {
+        // Aguarda o header carregar
+        document.addEventListener('header-ready', (e) => {
+            initList();
+        });
+    }
 
     // --- Client-side search / filter ---
     if (searchInput) {

@@ -61,6 +61,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Check URL to pre-select tab (e.g., ?tab=register)
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetTabParam = urlParams.get('tab');
+    if (targetTabParam === 'register' || targetTabParam === 'login') {
+        const targetBtn = document.querySelector(`.tab-btn[data-tab="${targetTabParam}"]`);
+        if (targetBtn) {
+            targetBtn.click();
+        }
+    }
+
     // Password Toggle
     togglePasswordBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -153,6 +163,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Profile fetch error:', profileError);
                 await supabase.auth.signOut();
                 throw new Error('Falha ao verificar perfil de usuário.');
+            }
+
+            // Link user to company if pendente
+            const pendenteEmpresaId = localStorage.getItem('registro_empresa_id');
+            if (pendenteEmpresaId && (!profile.empresa_user || profile.empresa_user === 'null')) {
+                console.log('[main.js] Vinculando novo usuário à empresa:', pendenteEmpresaId);
+                const { error: updateError } = await supabase
+                    .from('usuarios')
+                    .update({ empresa_user: pendenteEmpresaId })
+                    .eq('id', user.id);
+
+                if (!updateError) {
+                    profile.empresa_user = pendenteEmpresaId;
+                } else {
+                    console.error('Erro ao vincular empresa:', updateError);
+                }
+
+                // Remove from local storage regardless of success to avoid dirty state
+                localStorage.removeItem('registro_empresa_id');
             }
 
             console.log('[main.js] Tipo de usuário:', profile.tipo_user);

@@ -47,7 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 .eq('id', empresaId)
                 .single();
 
-            // 3. Buscar contagens (ex: Unidades)
+            // 3. Buscar contagens
+            console.log('[dashboard.js] Buscando contagens para a empresa:', empresaId);
+
+            // Unidades
             const { count: unidadesCount, error: countError } = await client
                 .from('unidades')
                 .select('*', { count: 'exact', head: true })
@@ -55,8 +58,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (countError) console.warn('[dashboard.js] Erro ao contar unidades:', countError);
 
+            // Turmas
+            const { count: turmasCount, error: turmasError } = await client
+                .from('turmas')
+                .select('*', { count: 'exact', head: true })
+                .eq('empresa_id', empresaId);
+
+            if (turmasError) console.warn('[dashboard.js] Erro ao contar turmas:', turmasError);
+
+            // Modalidades (Únicas vinculadas à empresa via modalidade_unidade)
+            const { data: modalidadesData, error: modalidadesError } = await client
+                .from('modalidade_unidade')
+                .select('modalidade_id')
+                .eq('empresa_id', empresaId);
+
+            let modalidadesCount = 0;
+            if (modalidadesError) {
+                console.warn('[dashboard.js] Erro ao buscar modalidades:', modalidadesError);
+            } else {
+                // Contar IDs únicos
+                const uniqueIds = new Set(modalidadesData.map(m => m.modalidade_id));
+                modalidadesCount = uniqueIds.size;
+            }
+
+            // Alunos (Usuários com tipo_user = 'usuario' vinculado à empresa)
+            const { count: alunosCount, error: alunosError } = await client
+                .from('usuarios')
+                .select('*', { count: 'exact', head: true })
+                .eq('empresa_user', empresaId)
+                .eq('tipo_user', 'usuario');
+
+            if (alunosError) console.warn('[dashboard.js] Erro ao contar alunos:', alunosError);
+
             // 4. Preencher a UI
-            populateUI(empresa, { unidades: unidadesCount || 0 });
+            populateUI(empresa, {
+                unidades: unidadesCount || 0,
+                turmas: turmasCount || 0,
+                modalidades: modalidadesCount || 0,
+                alunos: alunosCount || 0,
+                eventos: 0 // Mantido em 0 até que a tabela de eventos seja implementada
+            });
 
         } catch (error) {
             console.error('[dashboard.js] Erro fatal:', error);
@@ -85,10 +126,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Definir valores das categorias
         document.getElementById('count-unidades').textContent = counts.unidades ?? '0';
-        document.getElementById('count-modalidades').textContent = '0';
-        document.getElementById('count-turmas').textContent = '0';
-        document.getElementById('count-alunos').textContent = '0';
-        document.getElementById('count-eventos').textContent = '0';
+        document.getElementById('count-modalidades').textContent = counts.modalidades ?? '0';
+        document.getElementById('count-turmas').textContent = counts.turmas ?? '0';
+        document.getElementById('count-alunos').textContent = counts.alunos ?? '0';
+        document.getElementById('count-eventos').textContent = counts.eventos ?? '0';
 
         const statusBadge = document.getElementById('view-status');
         if (empresa.ativo) {
@@ -97,6 +138,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             statusBadge.textContent = 'Inativa';
             statusBadge.className = 'status-badge status-inactive';
+        }
+
+        const linkInscricoes = document.getElementById('link-inscricoes');
+        if (linkInscricoes) {
+            linkInscricoes.href = `/inscricoes/index.html?id=${empresa.id}`;
         }
     }
 

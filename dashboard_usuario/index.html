@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Usuário - Gestor Esportivo</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Specific Styles for Activities Grid mirroring open-registrations */
+        .activities-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .activity-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .activity-card {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 24px;
+            }
+        }
+
+        .activity-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .activity-main-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            .activity-header {
+                justify-content: flex-start;
+                gap: 16px;
+            }
+        }
+
+        .activity-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0 0 4px 0;
+        }
+
+        .activity-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .activity-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .activity-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        @media (min-width: 768px) {
+            .activity-details {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 24px;
+            }
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .detail-item i {
+            color: var(--text-muted);
+            margin-top: 4px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .schedules-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        @media (min-width: 768px) {
+            .schedules-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+        }
+
+        .activity-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .activity-footer {
+                align-items: flex-end;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+    <!-- Header injected by JS -->
+
+    <div class="dashboard-layout" style="padding-top: 2rem; display: block; max-width: 1200px; margin: 0 auto;">
+        <main class="dashboard-content" style="padding: 0 20px;">
+            <div class="dashboard-header">
+                <div>
+                    <h2 style="margin-bottom: 8px;">Bem-vindo, <span id="user-name">Usuário</span></h2>
+                    <p class="text-muted" id="company-welcome-text">Explore as atividades disponíveis da sua empresa
+                        vinculada.</p>
+                </div>
+            </div>
+
+            <!-- Loader and Error Messaging -->
+            <div id="loading-activities"
+                style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 20px;"></i>
+                <p>Buscando atividades...</p>
+            </div>
+
+            <main class="dashboard-container" id="user-activities-container" style="display: none; padding: 0;">
+
+                <h2 style="font-size: 1.25rem; margin-bottom: 24px;">Atividades Disponíveis</h2>
+
+                <div class="activities-grid" id="activities-grid">
+                    <!-- Activities will be injected here by JS -->
+                </div>
+            </main>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/header.js"></script>
+    <script src="/dashboard_usuario/dashboard_usuario.js"></script>
+</body>
+
+</html>

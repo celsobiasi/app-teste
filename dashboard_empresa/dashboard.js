@@ -12,22 +12,31 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             console.log('[dashboard.js] Iniciando dashboard para o usuário:', user.id);
 
-            // 1. Obter ID da empresa (prioridade para a URL, fallback para o perfil)
+            // 1. Obter perfil do usuário para validar Permissão e Empresa
+            console.log('[dashboard.js] Validando perfil de acesso...');
+            const { data: profile, error: profileError } = await client
+                .from('usuarios')
+                .select('empresa_user, tipo_user')
+                .eq('id', user.id)
+                .single();
+
+            if (profileError) {
+                console.error('[dashboard.js] Erro ao buscar perfil:', profileError);
+                throw profileError;
+            }
+
+            // --- PROTEÇÃO DE ROTA ---
+            if (profile?.tipo_user === 'usuario') {
+                console.warn('[dashboard.js] Acesso negado. Redirecionando usuário comum para seu painel correto.');
+                window.location.href = '../dashboard_usuario/index.html';
+                return;
+            }
+
             const urlParams = new URLSearchParams(window.location.search);
             let empresaId = urlParams.get('id');
 
             if (!empresaId || empresaId === 'null') {
-                console.log('[dashboard.js] Buscando empresa_user no perfil...');
-                const { data: profile, error: profileError } = await client
-                    .from('usuarios')
-                    .select('empresa_user')
-                    .eq('id', user.id)
-                    .single();
-
-                if (profileError) {
-                    console.error('[dashboard.js] Erro ao buscar perfil:', profileError);
-                    throw profileError;
-                }
+                console.log('[dashboard.js] Usando empresa_user do próprio perfil...');
                 empresaId = profile?.empresa_user;
             } else {
                 console.log('[dashboard.js] Usando empresaId da URL:', empresaId);

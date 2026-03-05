@@ -191,10 +191,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => {
                     window.location.href = '/dashboard/index.html';
                 }, 1000);
-            } else {
+            } else if (profile.tipo_user === 'usuario') {
                 showMessage(loginSuccessMsg, 'Login realizado com sucesso! Redirecionando...', false);
+                setTimeout(() => {
+                    window.location.href = '/dashboard_usuario/index.html';
+                }, 1000);
+            } else {
+                showMessage(loginSuccessMsg, 'Login realizado com sucesso! Redirecionando para Painel da Empresa...', false);
                 const empresaId = profile.empresa_user || 'null';
-                console.log('[main.js] Redirecionando usuário comum para empresa:', empresaId);
+                console.log('[main.js] Redirecionando administrador de empresa:', empresaId);
                 setTimeout(() => {
                     // Usar caminho absoluto para evitar problemas de diretório
                     const redirectUrl = `/dashboard_empresa/index.html?id=${empresaId}`;
@@ -237,18 +242,27 @@ document.addEventListener('DOMContentLoaded', () => {
         setLoading(registerBtn, true, 'Criar Conta');
 
         try {
+            // Ler possível ID de empresa do cache antes de registrar
+            const empresaToLink = localStorage.getItem('registro_empresa_id');
+
             // Step A: Create User in Supabase Auth
             const { data, error } = await supabase.auth.signUp({
                 email: email,
                 password: password,
                 options: {
                     data: {
-                        full_name: name // Optional: stores in user_metadata too
+                        full_name: name, // Optional: stores in user_metadata too
+                        empresa_user: empresaToLink || null // Pass company direct to trigger
                     }
                 }
             });
 
             if (error) throw error;
+
+            // Se vinculou com sucesso na criação, limpar cache
+            if (empresaToLink) {
+                localStorage.removeItem('registro_empresa_id');
+            }
 
             // Start of Removed Manual Insert Block
             // The trigger 'on_auth_user_created' now handles insertion into public.usuarios automatically.

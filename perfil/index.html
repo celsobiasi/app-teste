@@ -218,6 +218,8 @@
             if (btnBack) {
                 if (profile?.tipo_user === 'superadmin') {
                     btnBack.href = '../dashboard/index.html';
+                } else if (profile?.tipo_user === 'usuario') {
+                    btnBack.href = '../dashboard_usuario/index.html';
                 } else {
                     const empresaId = profile?.empresa_user || '';
                     btnBack.href = `../dashboard_empresa/index.html?id=${empresaId}`;
